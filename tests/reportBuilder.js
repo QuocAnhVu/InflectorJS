@@ -1,4 +1,9 @@
-// Builds a report
+// Interfaces used:
+ // Test { string spec, T<Stringable> input, T<Stringable> expectedOutput, T<Stringable> result }
+ // Report { string meta, Test[] tests, Test[] failed }
+ // Summary { float totalCategories, float tests, float failedTests }
+
+ // Builds a report
 var reportBuilder = module.exports = function(callback) {
   reportBuilder.report = {
     meta: "",

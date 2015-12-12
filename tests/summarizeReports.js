@@ -1,5 +1,10 @@
 var TAB = "  ";
 
+// Interfaces used:
+ // Test { string spec, T<Stringable> input, T<Stringable> expectedOutput, T<Stringable> result }
+ // Report { string meta, Test[] tests, Test[] failed }
+ // Summary { float totalCategories, float tests, float failedTests }
+
 // Summarizes an array of reports
 var summarizeReports = module.exports = function(reports) {
   var summary = {

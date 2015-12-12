@@ -1,11 +1,4 @@
 "use strict";
-var TAB = "  ";
-
-// Interfaces used:
- // Test { string spec, T<Stringable> input, T<Stringable> expectedOutput, T<Stringable> result }
- // Report { string meta, Test[] tests, Test[] failed }
- // Summary { float totalCategories, float tests, float failedTests }
-
 
 // Builds a report
 var reportBuilder = require('./reportBuilder.js');
@@ -14,15 +7,6 @@ var reportBuilder = require('./reportBuilder.js');
 var summarize = require('./summarizeReports.js');
 
 // TODO: Unclean script below
-
-// TODO: Dependency order is weird. If generalizing, fix.
-var fs = require('fs');
-var logFile = ('./testLog.txt');
-function record(logString) {
-  console.log(logString);
-  // TODO: Following is asynchronous. If race conditions exist in logfile, look here first.
-  fs.writeFile(logFile, logString + "\n", function(err) { console.log(err); });
-}
 
 // TODO: If generalizing, change file directory.
 var fs = require('fs');
