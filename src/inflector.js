@@ -1,7 +1,8 @@
 module.exports = (function() {
   var inflector = {};
-
-  inflector.camelize = function(string) {}
+  var inflections = require('inflections');
+  
+  inflector.camelize = require('./methods/camelize.js')(inflections);
   inflector.classify = function(string) {}
   inflector.constantize = function(string) {}
   inflector.dasherize = function(string) {}
@@ -20,8 +21,6 @@ module.exports = (function() {
   inflector.titleize = function(string) {}
   inflector.transliterate = function(string) {}
   inflector.underscore = function(string) {}
-  inflector.capitalize = function(string) {
-    return "Test";
-  }
+
   return inflector;
 })();
