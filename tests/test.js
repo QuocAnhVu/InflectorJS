@@ -1,28 +1,13 @@
 "use strict";
 
-// Builds a report
+// AKA ReportBuilder { void describe(), assert(), finish() }
 var reportBuilder = require('./reportBuilder.js');
-
-// Summarizes an array of reports
+// AKA void summarize(Report[] reports)
 var summarize = require('./summarizeReports.js');
 
 // TODO: Unclean script below
 
-// TODO: If generalizing, change file directory.
-var fs = require('fs');
-var testDir = "./unit/";
-var subjDir = "../src/inflector.js"
-
-// console.log(fs.readdirSync("./tests/unit"))
-
-var filenames = fs.readdirSync('./tests/unit/');
-var files = [];
-filenames.forEach(function(filename) {
-  if(filename.substr(-3) === ".js") {
-    files.push(testDir + filename);
-  }
-});
-
+// Define finishReport function for reportBuilder reporters
 var reports = [];
 var finishReport = function(report) {
   reports.push(report);
@@ -31,9 +16,24 @@ var finishReport = function(report) {
   }
 }
 
+// TODO: If generalizing, change file directory.
+var fs = require('fs');
+var testDir = "./unit/";
+var subjFile = "../src/inflector.js"
+
+// Get test suite file paths
+var filenames = fs.readdirSync('./tests/unit/');
+var files = [];
+filenames.forEach(function(filename) {
+  if(filename.substr(-3) === ".js") {
+    files.push(testDir + filename);
+  }
+});
+
+// Run test suite for each test suite file path
 files.forEach(function(file) {
   var suite = require(file);
-  var subject = require(subjDir);
+  var subject = require(subjFile);
   var reporter = reportBuilder(finishReport);
   suite(subject, reporter);
 });
