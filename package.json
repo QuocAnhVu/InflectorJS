@@ -1,0 +1,21 @@
+{
+  "name": "InflectorJS",
+  "version": "0.0.0",
+  "description": "A Node.js port of Ruby on Rail's ActiveSupport::Inflector.",
+  "main": "inflector.js",
+  "scripts": {
+    "test": "./tests/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:QuocAnhVu/InflectorJS.git"
+  },
+  "keywords": [
+    "inflector"
+  ],
+  "author": "Quoc-Anh Vu <quoc.v.anh@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/QuocAnhVu/InflectorJS/issues"
+  }
+}
