@@ -4,7 +4,7 @@
   "description": "A Node.js port of Ruby on Rail's ActiveSupport::Inflector.",
   "main": "inflector.js",
   "scripts": {
-    "test": "./tests/test.js"
+    "test": "nodejs tests/test.js"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,8 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/QuocAnhVu/InflectorJS/issues"
+  },
+  "directories": {
+    "test": "tests"
   }
 }
