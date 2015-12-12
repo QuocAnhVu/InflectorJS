@@ -8,77 +8,10 @@ var TAB = "  ";
 
 
 // Builds a report
-var reportBuilder = function(callback) {
-  reportBuilder.report = {
-    meta: "",
-    tests: [],
-    failed: []
-  };
-
-  reportBuilder.describe = function(suite) {
-    reportBuilder.report.meta = suite;
-  }
-
-  reportBuilder.assert = function(testedFunction, input, expectedOutput, spec) {
-    var test = {
-      spec: (spec != null ? spec : "Undefined"),
-      input: input,
-      expectedOutput: expectedOutput,
-      result: {}
-    }
-
-    test.result = testedFunction(input);
-
-    reportBuilder.report.tests.push(test);
-    if(test.result !== expectedOutput) {
-      reportBuilder.report.failed.push(test);
-    }
-  }
-
-  reportBuilder.finish = function() {
-    callback(reportBuilder.report);
-  }
-
-  return reportBuilder;
-}
+var reportBuilder = require('./reportBuilder.js');
 
 // Summarizes an array of reports
-var summarize = function(reports) {
-  var summary = {
-    totalCategories: reports.length,
-    tests: 0,
-    failedTests: 0
-  };
-
-  // Declare failed report format in advance.
-  summarize._summarizeFailedReport = function(report) {
-    var result = "";
-    result += TAB + report.meta + ": Failed " + report.failed.length + " tests.\n";
-    report.failed.forEach(function(failedTest) {
-      result += TAB+TAB + failedTest.spec + " failed.";
-      result += TAB+TAB + "Inputted " + failedTest.input.toString() + ".\n";
-      result += TAB+TAB + "Expected " + failedTest.expectedOutput.toString() + ".\n";
-      result += TAB+TAB +  "Returned " + failedTest.result.toString() + ".\n\n";
-    });
-    return result;
-  }
-
-  // Condense reports to a summary
-  reports.forEach(function(report) {
-    summary.tests += report.tests.length;
-    summary.failedTests += report.failed.length;
-  });
-
-  // Log summary and reports
-  record("Out of " + summary.tests + " tests, " + summary.failedTests + " tests failed.");
-  reports.forEach(function(report) {
-    if(report.failed.length == 0) {
-      record(TAB + report.meta + ": All tests passed!\n")
-    } else {
-      record(summarize._summarizeFailedReport(report) + "\n");
-    }
-  });
-}
+var summarize = require('./summarizeReports.js');
 
 // TODO: Unclean script below
 
