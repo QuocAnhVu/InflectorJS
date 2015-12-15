@@ -1,4 +1,7 @@
 var genNewFunction = module.exports = function(functionName) {
+  if(functionName == null) { 
+    throw "No function name specified.";
+  }
   var fs = require('fs');
   var handleError = function(err) { if(err) throw err; }
   var addToScript = function() {
