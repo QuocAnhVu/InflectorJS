@@ -1,21 +1,20 @@
 // Interfaces used:
  // Test { string spec, T<Stringable> input, T<Stringable> expectedOutput, T<Stringable> result }
  // Report { string meta, Test[] tests, Test[] failed }
- // Summary { float totalCategories, float tests, float failedTests }
 
  // Builds a report
-var reportBuilder = module.exports = function(callback) {
-  reportBuilder.report = {
+module.exports = function(callback) {
+  this.report = {
     meta: "",
     tests: [],
     failed: []
   };
 
-  reportBuilder.describe = function(suite) {
-    reportBuilder.report.meta = suite;
+  this.describe = function(suite) {
+    this.report.meta = suite;
   }
 
-  reportBuilder.assert = function(testedFunction, input, expectedOutput, spec) {
+  this.assert = function(testedFunction, input, expectedOutput, spec) {
     var test = {
       spec: (spec != null ? spec : "Undefined"),
       input: input,
@@ -25,15 +24,15 @@ var reportBuilder = module.exports = function(callback) {
 
     test.result = testedFunction(input);
 
-    reportBuilder.report.tests.push(test);
+    this.report.tests.push(test);
     if(test.result !== expectedOutput) {
-      reportBuilder.report.failed.push(test);
+      this.report.failed.push(test);
     }
   }
 
-  reportBuilder.finish = function() {
-    callback(reportBuilder.report);
+  this.finish = function() {
+    callback(null, reportBuilder.report);
   }
 
-  return reportBuilder;
+  return this;
 }

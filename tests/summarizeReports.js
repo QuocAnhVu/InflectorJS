@@ -1,20 +1,14 @@
-var TAB = "  ";
-
 // Interfaces used:
  // Test { string spec, T<Stringable> input, T<Stringable> expectedOutput, T<Stringable> result }
  // Report { string meta, Test[] tests, Test[] failed }
  // Summary { float totalCategories, float tests, float failedTests }
 
 // Summarizes an array of reports
-var summarizeReports = module.exports = function(reports) {
-  var summary = {
-    totalCategories: reports.length,
-    tests: 0,
-    failedTests: 0
-  };
+module.exports = function(reports) {
+  var TAB = "  ";
 
-  // Declare failed report format in advance.
-  var _summarizeFailedReport = function(report) {
+  // Format report of failed test
+  var summarizeFailedReport = function(report) {
     var result = "";
     result += TAB + "Suite (" + report.meta + "): Failed " + report.failed.length + " tests.\n";
     report.failed.forEach(function(failedTest) {
@@ -26,14 +20,28 @@ var summarizeReports = module.exports = function(reports) {
     return result;
   }
 
-  // Condense reports to a summary
+  // Records string to logfile and console
+  var record = function(string) {
+    var fs = require('fs');
+    var logFile = ('./testLog.txt');
+    // TODO: Following is asynchronous. If race conditions exist in logfile, look here first.
+    fs.writeFile(logFile, string + "\n", function(err) { console.log(err); });
+    console.log(string);
+  }
+
+  // Log summary of reports
+  var summary = {
+    totalCategories: reports.length,
+    tests: 0,
+    failedTests: 0
+  };
   reports.forEach(function(report) {
     summary.tests += report.tests.length;
     summary.failedTests += report.failed.length;
   });
-
-  // Log summary and reports
   record("Out of " + summary.tests + " tests, " + summary.failedTests + " tests failed.");
+
+  // Log all reports
   reports.forEach(function(report) {
     if(report.failed.length == 0) {
       record(TAB + "Suite (" + report.meta + "): All tests passed!\n")
@@ -41,14 +49,4 @@ var summarizeReports = module.exports = function(reports) {
       record(_summarizeFailedReport(report) + "\n");
     }
   });
-}
-
-// Records log to console and to file
-// TODO: Dependency order is weird. If generalizing, fix.
-var fs = require('fs');
-var logFile = ('./testLog.txt');
-function record(logString) {
-  console.log(logString);
-  // TODO: Following is asynchronous. If race conditions exist in logfile, look here first.
-  fs.writeFile(logFile, logString + "\n", function(err) { console.log(err); });
 }
