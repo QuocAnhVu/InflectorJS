@@ -1,16 +1,17 @@
 // inflections.
 //   acronym_regex
 //   acronyms[]
-//   uncountables[]
 //   humans[{pattern, replacement}]
 //   (locale).plurals
 //   (locale).singulars
+//   uncountables[]
 module.exports = function(inflector) {
-
+  this.locale = 'en';
   this.inflections = require('./inflections');
   
   this.camelize = function(term, uppercaseFirstLetter) { 
-    uppercaseFirstLetter = uppercaseFirstLetter != null ? uppercaseFirstLetter : true;
+    if(uppercaseFirstLetter == null) uppercaseFirstLetter = true;
+
     term = term.toString();
     if(uppercaseFirstLetter) {
       term = term.replace(/^[a-z\d]*/, function(match) {
@@ -33,13 +34,15 @@ module.exports = function(inflector) {
     return this.camelize(this.singularize(tableName.toString().replace(/.*\./, '')));
   }
 
-  this.constantize = function(camelCasedWord) {}
+  // this.constantize = function(camelCasedWord) {}
+
+  // this.safe_constantize = function(string) {}
 
   this.dasherize = function(underscoredWord) {
     return underscoredWord.replace(/_/g, '-');
   }
 
-  this.deconstantize = function(path) {}
+  // this.deconstantize = function(path) {}
 
   this.demodulize = function(path) {
     path = path.toString();
@@ -52,8 +55,9 @@ module.exports = function(inflector) {
   }
 
   this.foreign_key = function(className, separateClassNameAndIDWithUnderscore) {
+    if(separateClassNameAndIDWithUnderscore == null) separateClassNameAndIDWithUnderscore = true;
+
     var underscore = separateClassNameAndIDWithUnderscore;
-    underscore = underscore != null ? underscore : true;
     return this.underscore(this.demodulize(className)) + (underscore ? '_id' : 'id');
   }
 
@@ -83,7 +87,8 @@ module.exports = function(inflector) {
 
   this.ordinal = function(number) {
     if(isNaN(number)) { 
-      throw number.toString() + " is NaN"; 
+      throw number.toString() + " is NaN";
+      return '';
     }
 
     var abs_number = Math.abs(number);
@@ -102,23 +107,23 @@ module.exports = function(inflector) {
 
   // TODO: Error handling is in two different place. Is that good??
   this.ordinalize = function(number) {
-    if(isNaN(number)) { 
-      throw number.toString() + " is NaN"; 
+    try {
+      return number.toString() + this.ordinal(number);
+    } catch(e) {
+      throw e;
+      return number.toString();
     }
-    return number.toString() + this.ordinal(number);
   }
 
-  this.parameterize = function(string) {}
+  // this.parameterize = function(string) {}
 
   this.pluralize = function(word, locale) {
-    locale = locale != null ? locale : 'en';
+    if(locale == null) locale = this.locale;
     return apply_inflections(word, inflections(locale).plurals);
   }
 
-  this.safe_constantize = function(string) {}
-
   this.singularize = function(word, locale) {
-    locale = locale != null ? locale : 'en';
+    if(locale == null) locale = this.locale;
     return apply_inflections(word, inflections(locale).singulars);
   }
 
@@ -132,28 +137,29 @@ module.exports = function(inflector) {
     });
   }
 
-  this.transliterate = function(string) {}
+  // this.transliterate = function(string) {}
 
-  this.underscore = function(camelCasedWord) {
-    // if(!camelCasedWord.match(/[A-Z-]|::/)) {
-    //   return camelCasedWord;
-    // }
+  // this.underscore = function(camelCasedWord) {
+  //   if(!camelCasedWord.match(/[A-Z-]|::/)) {
+  //     return camelCasedWord;
+  //   }
 
-    // var word = camelCasedWord.toString();
+  //   var word = camelCasedWord.toString();
 
-    // word = word.replace(/::/g, '/');
-    // var re = new RegExp('(?:(?<=([A-Za-z\d]))|\b)(' + inflections.acronym_regex + ')(?=\b|[^a-z])');
-    // word = word.replace(re, function(match, p1, p2) {
-    //   return 
-    // })
-  }
+  //   word = word.replace(/::/g, '/');
+  //   var re = new RegExp('(?:(?<=([A-Za-z\d]))|\b)(' + inflections.acronym_regex + ')(?=\b|[^a-z])');
+  //   word = word.replace(re, function(match, p1, p2) {
+  //     return 
+  //   })
+    
+  // }
 
   // TODO: match unicode letters w/ symbols (ex: 'á') 
   this.capitalize = function(string) {
     if(string.length > 1 || inflections.acronyms[string] != null) {
       return inflections.acronyms[string];
     } else {
-      return string.replace(/\b[a-z]/, function(match) {
+      return string.replace(/\b[a-z\d]/, function(match) {
         return match.toUpperCase();
       }
     }
@@ -171,4 +177,4 @@ module.exports = function(inflector) {
   }
 
   return inflector;
-}
+};
