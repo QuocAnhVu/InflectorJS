@@ -1,4 +1,8 @@
 # Incomplete
+- Features: 90%
+- Testing: 5%
+- Documentation: 0%
+
 # InflectorJS
 A Node.js port of Ruby on Rail's ActiveSupport::Inflector.
 
