@@ -21,7 +21,7 @@
   // TODO: If generalizing, change file directory.
   var fs = require('fs');
   var testDir = "./unit/";
-  var subjFile = "../src/inflector.js"
+  var subjFile = "../lib/inflector.js"
 
   // Get test suite file paths
   var filenames = fs.readdirSync('./tests/unit/');
