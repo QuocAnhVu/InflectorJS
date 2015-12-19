@@ -18,6 +18,7 @@ A Node.js port of Ruby on Rail's ActiveSupport::Inflector.
 -  Tableize
 -  Titleize
 -  Underscore
+
 ## WIP
 -  Parameterize
 -  Constantize
