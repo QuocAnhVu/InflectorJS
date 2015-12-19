@@ -1,6 +1,5 @@
 module.exports = function(locale) {
-  this.defaultLocale = locale || 'en';
-  this.inflections = require('./inflections')(defaultLocale);
+  this.inflections = new require('./inflections')(locale);
   
   this.camelize = function(term, uppercaseFirstLetter) { 
     uppercaseFirstLetter = uppercaseFirstLetter || true;
@@ -8,16 +7,16 @@ module.exports = function(locale) {
     term = term.toString();
     if(uppercaseFirstLetter) {
       term = term.replace(/^[a-z\d]*/, function(match) {
-        return inflector.capitalize(match);
+        return this.capitalize(match);
       });
     } else {
-      var re = new RegExp("^(?:" + inflections.acronymRegex() + "(?=\b|[A-Z_])|\w)")
+      var re = new RegExp("^(?:" + this.inflections.acronymRegex() + "(?=\b|[A-Z_])|\w)")
       term = term.replace(re, function(match) {
         return match.toLowerCase();
       });
     }
     term = term.replace(/(?:_|(\/))([a-z\d]*)/gi, function(match, p1, p2) {
-      return p1 + inflector.capitalize(p2);;
+      return p1 + this.capitalize(p2);;
     })
     term = term.replace(/\//g, '::');
     return term;
@@ -58,7 +57,7 @@ module.exports = function(locale) {
     capitalizeFirstWord = capitalizeFirstWord || false;
     var result = lowerCaseAndUnderscoredWord.toString();
 
-    inflections.humans.forEach(function(rule) {
+    this.inflections.humans.forEach(function(rule) {
       result = result.replace(rule[0], rule[1]);
     };
 
@@ -67,7 +66,7 @@ module.exports = function(locale) {
     result = result.replace(/_/g, ' ');
 
     result = result.replace(/([a-z\d]*)/g, function(match) {
-      return inflections.acronyms[match] || match.toLowerCase();
+      return this.inflections.acronyms[match] || match.toLowerCase();
     });
 
     if(capitalizeFirstWord) {
@@ -78,11 +77,7 @@ module.exports = function(locale) {
   };
 
   this.ordinal = function(number) {
-    if(isNaN(number)) { 
-      throw number.toString() + " is NaN";
-      return '';
-    }
-
+    number = parseInt(number, 10);
     var abs_number = Math.abs(number);
 
     if(abs_number % 100 >= 11 && abs_number % 100 <= 13) {
@@ -97,26 +92,18 @@ module.exports = function(locale) {
     }
   };
 
-  // TODO: Error handling is in two different place. Is that good??
   this.ordinalize = function(number) {
-    try {
-      return number.toString() + this.ordinal(number);
-    } catch(e) {
-      throw e;
-      return number.toString();
-    }
+    return number.toString() + this.ordinal(number);
   };
 
   // this.parameterize = function(string) {};
 
-  this.pluralize = function(word, locale) {
-    locale = locale || this.defaultLocale;
-    return applyInflections(word, inflections.plurals());
+  this.pluralize = function(word) {
+    return this.applyInflections(word, this.inflections.plurals);
   };
 
-  this.singularize = function(word, locale) {
-    locale = locale || this.defaultLocale;
-    return applyInflections(word, inflections.singulars());
+  this.singularize = function(word) {
+    return this.applyInflections(word, this.inflections.singulars);
   };
 
   this.tableize = function(className) {
@@ -131,25 +118,26 @@ module.exports = function(locale) {
 
   // this.transliterate = function(string) {};
 
-  // this.underscore = function(camelCasedWord) {
-  //   if(!camelCasedWord.match(/[A-Z-]|::/)) {
-  //     return camelCasedWord;
-  //   }
+  this.underscore = function(camelCasedWord) {
+    if(!camelCasedWord.match(/[A-Z-]|::/)) {
+      return camelCasedWord;
+    }
 
-  //   var word = camelCasedWord.toString();
+    var word = camelCasedWord.toString();
 
-  //   word = word.replace(/::/g, '/');
-  //   var re = new RegExp('(?:(?<=([A-Za-z\d]))|\b)(' + inflections.acronymRegex() + ')(?=\b|[^a-z])');
-  //   word = word.replace(re, function(match, p1, p2) {
-  //     return 
-  //   })
-    
-  // };
+    word = word.replace(/::/g, '/');
+    var re = new RegExp('(?:(?<=([A-Za-z\d]))|\b)(' + this.inflections.acronymRegex() + ')(?=\b|[^a-z])', 'g');
+    word = word.replace(re, function(match, p1, p2) {
+      return p1 + '_' + p2;
+    });
+    word = word.replace(/-/g, '_');
+    word = word.toLowerCase();
+    return word;
+  };
 
-  // TODO: match unicode letters w/ symbols (ex: 'á') 
   this.capitalize = function(string) {
-    if(inflections.acronyms[string] != null) {
-      return inflections.acronyms[string];
+    if(this.inflections.acronyms[string] != null) {
+      return this.inflections.acronyms[string];
     } else {
       return string.replace(/\A\w/, function(match) { 
         return match.toUpperCase();
@@ -157,9 +145,9 @@ module.exports = function(locale) {
     }
   };
 
-  var applyInflections = function(word, rules) {
+  this.applyInflections = function(word, rules) {
     word = word.toString();
-    if(word.length == 0 || inflections.uncountables[word.toLowerCase()] != null) { // !word.isEmpty? || inflections.uncountables.includes(word)
+    if(word.length == 0 || this.inflections.uncountables[word.toLowerCase()] != null) { // !word.isEmpty? || inflections.uncountables.includes(word)
       return word;
     } else {
       rules.forEach(function(rule) {

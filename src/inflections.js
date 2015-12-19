@@ -25,8 +25,10 @@ module.exports = function(locale) {
 	this.acronym = function(acronym) {
 		this.acronyms[acronym.toLowerCase()] = acronym;
 	};
-	this.acroynmsRegex = function() {
-		return Object.keys(this.acronyms()).join('|');
+	this.acronymsRegex = function() {
+		return Object.keys(this.acronyms).map(function(key) {
+			return this.acronyms[key];
+		}).join('|');
 	};
 
 	this.uncountable = function(uncountable) {
