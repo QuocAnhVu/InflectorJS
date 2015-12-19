@@ -1,16 +1,9 @@
-// inflections.
-//   acronym_regex
-//   acronyms[]
-//   humans[{pattern, replacement}]
-//   (locale).plurals
-//   (locale).singulars
-//   uncountables[]
-module.exports = function(inflector) {
-  this.locale = 'en';
-  this.inflections = require('./inflections');
+module.exports = function(locale) {
+  this.defaultLocale = locale || 'en';
+  this.inflections = require('./inflections')(defaultLocale);
   
   this.camelize = function(term, uppercaseFirstLetter) { 
-    if(uppercaseFirstLetter == null) uppercaseFirstLetter = true;
+    uppercaseFirstLetter = uppercaseFirstLetter || true;
 
     term = term.toString();
     if(uppercaseFirstLetter) {
@@ -18,7 +11,7 @@ module.exports = function(inflector) {
         return inflector.capitalize(match);
       });
     } else {
-      var re = new RegExp("^(?:" + inflections.acronym_regex + "(?=\b|[A-Z_])|\w)")
+      var re = new RegExp("^(?:" + inflections.acronymRegex() + "(?=\b|[A-Z_])|\w)")
       term = term.replace(re, function(match) {
         return match.toLowerCase();
       });
@@ -28,11 +21,11 @@ module.exports = function(inflector) {
     })
     term = term.replace(/\//g, '::');
     return term;
-  }
+  };
 
   this.classify = function(tableName) {
     return this.camelize(this.singularize(tableName.toString().replace(/.*\./, '')));
-  }
+  };
 
   // this.constantize = function(camelCasedWord) {}
 
@@ -40,7 +33,7 @@ module.exports = function(inflector) {
 
   this.dasherize = function(underscoredWord) {
     return underscoredWord.replace(/_/g, '-');
-  }
+  };
 
   // this.deconstantize = function(path) {}
 
@@ -52,38 +45,37 @@ module.exports = function(inflector) {
     } else {
       return path;
     }
-  }
+  };
 
   this.foreign_key = function(className, separateClassNameAndIDWithUnderscore) {
-    if(separateClassNameAndIDWithUnderscore == null) separateClassNameAndIDWithUnderscore = true;
+    separateClassNameAndIDWithUnderscore = separateClassNameAndIDWithUnderscore || true;
 
-    var underscore = separateClassNameAndIDWithUnderscore;
+    var underscore = separateClassNameAndIDWithUnderscore.toString();
     return this.underscore(this.demodulize(className)) + (underscore ? '_id' : 'id');
-  }
+  };
 
-  this.humanize = function(lowerCaseAndUnderscoredWord, options) {
+  this.humanize = function(lowerCaseAndUnderscoredWord, capitalizeFirstWord) {
+    capitalizeFirstWord = capitalizeFirstWord || false;
     var result = lowerCaseAndUnderscoredWord.toString();
 
     inflections.humans.forEach(function(rule) {
-      result = result.replace(new RegExp(rule.pattern, 'g'), rule.replacement);
-    }
+      result = result.replace(rule[0], rule[1]);
+    };
 
     result = result.replace(/\A_+/, '');
     result = result.replace(/_id\z/, '');
     result = result.replace(/_/g, ' ');
 
     result = result.replace(/([a-z\d]*)/g, function(match) {
-      return inflections.acronyms[match] ? inflections.acronyms[match] : match.toLowerCase();
+      return inflections.acronyms[match] || match.toLowerCase();
     });
 
-    if(options[capitalize] != null && options[capitalize]) {
-      result = result.replace(/\A\w/, function(match) { 
-        return match.toUpperCase();
-      });
+    if(capitalizeFirstWord) {
+      result = this.capitalize(result);
     }
 
     return result;
-  }
+  };
 
   this.ordinal = function(number) {
     if(isNaN(number)) { 
@@ -103,7 +95,7 @@ module.exports = function(inflector) {
         default: return 'th';
       }
     }
-  }
+  };
 
   // TODO: Error handling is in two different place. Is that good??
   this.ordinalize = function(number) {
@@ -113,31 +105,31 @@ module.exports = function(inflector) {
       throw e;
       return number.toString();
     }
-  }
+  };
 
-  // this.parameterize = function(string) {}
+  // this.parameterize = function(string) {};
 
   this.pluralize = function(word, locale) {
-    if(locale == null) locale = this.locale;
-    return apply_inflections(word, inflections(locale).plurals);
-  }
+    locale = locale || this.defaultLocale;
+    return applyInflections(word, inflections.plurals());
+  };
 
   this.singularize = function(word, locale) {
-    if(locale == null) locale = this.locale;
-    return apply_inflections(word, inflections(locale).singulars);
-  }
+    locale = locale || this.defaultLocale;
+    return applyInflections(word, inflections.singulars());
+  };
 
   this.tableize = function(className) {
     return this.pluralize(this.underscore(className));
-  }
+  };
 
   this.titleize = function(word) {
     return this.humanize(this.underscore(word)).replace(/\b(?<!['â`])[a-z]/g, function(match) {
       this.capitalize(match);
     });
-  }
+  };
 
-  // this.transliterate = function(string) {}
+  // this.transliterate = function(string) {};
 
   // this.underscore = function(camelCasedWord) {
   //   if(!camelCasedWord.match(/[A-Z-]|::/)) {
@@ -147,34 +139,32 @@ module.exports = function(inflector) {
   //   var word = camelCasedWord.toString();
 
   //   word = word.replace(/::/g, '/');
-  //   var re = new RegExp('(?:(?<=([A-Za-z\d]))|\b)(' + inflections.acronym_regex + ')(?=\b|[^a-z])');
+  //   var re = new RegExp('(?:(?<=([A-Za-z\d]))|\b)(' + inflections.acronymRegex() + ')(?=\b|[^a-z])');
   //   word = word.replace(re, function(match, p1, p2) {
   //     return 
   //   })
     
-  // }
+  // };
 
   // TODO: match unicode letters w/ symbols (ex: 'á') 
   this.capitalize = function(string) {
-    if(string.length > 1 || inflections.acronyms[string] != null) {
+    if(inflections.acronyms[string] != null) {
       return inflections.acronyms[string];
     } else {
-      return string.replace(/\b[a-z\d]/, function(match) {
+      return string.replace(/\A\w/, function(match) { 
         return match.toUpperCase();
-      }
+      });
     }
-  }
+  };
 
-  var apply_inflections = function(word, rules) {
+  var applyInflections = function(word, rules) {
     word = word.toString();
-    if(word.length == 0 || inflections.uncountables.indexOf(word) != -1) { // !word.isEmpty? || inflections.uncountables.includes(word)
+    if(word.length == 0 || inflections.uncountables[word.toLowerCase()] != null) { // !word.isEmpty? || inflections.uncountables.includes(word)
       return word;
     } else {
       rules.forEach(function(rule) {
-        word = word.replace(new RegExp(rule.pattern, 'g'), rule.replacement);
-      }
+        word = word.replace(rule[0], rule[1]);
+      };
     }
-  }
-
-  return inflector;
+  };
 };
