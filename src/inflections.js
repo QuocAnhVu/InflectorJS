@@ -14,7 +14,7 @@ module.exports = function(locale) {
 	this.plurals = this.plurals || [];
 	this.singulars = this.singulars || [];
 
-	this.clearInflections = function() {
+	this.clear = function() {
 		this.acronyms = {};
 		this.uncountables = {};
 		this.humans = [];
