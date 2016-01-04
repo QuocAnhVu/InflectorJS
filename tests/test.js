@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 (function() {
   var ReportBuilder = require('./reportBuilder.js');
