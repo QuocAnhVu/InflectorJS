@@ -1,4 +1,4 @@
-var genNewFunction = module.exports = function(functionName) {
+var genTest = module.exports = function(functionName) {
   if(functionName == null) { 
     throw "No function name specified.";
   }

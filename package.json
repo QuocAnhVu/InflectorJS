@@ -4,7 +4,8 @@
   "description": "A Node.js port of Ruby on Rail's ActiveSupport::Inflector.",
   "main": "inflector.js",
   "scripts": {
-    "test": "node tests/test.js"
+    "test": "node tests/test.js",
+    "gentest": " node scripts/genTest.js"
   },
   "repository": {
     "type": "git",
